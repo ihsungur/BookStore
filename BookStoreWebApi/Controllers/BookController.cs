@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreWebApi.Controllers
 {
-    
+
     [ApiController]
     [Route("[controller]s")]
-    public class BookController:ControllerBase
+    public class BookController : ControllerBase
     {
-          private static List<Book> BookList = new List<Book>(){
+        private static List<Book> BookList = new List<Book>(){
           new Book{
                Id=1,
                Title="Lean Starup",
@@ -42,13 +42,41 @@ namespace BookStoreWebApi.Controllers
             return bookList;
         }
 
-        
+
 
         [HttpGet("{id}")]
         public Book GetById(int id)
         {
-            var book = BookList.Where(book =>book.Id ==id).SingleOrDefault();
+            var book = BookList.Where(book => book.Id == id).SingleOrDefault();
             return book;
+        }
+
+        // Post
+        [HttpPost]
+        public IActionResult AddBook([FromBody] Book newBook)
+        {
+            //Yeni eklenecek kitap listemizde var mı yok mu kontrol ediyoruz
+         var book = BookList.SingleOrDefault(x=>x.Title == newBook.Title);
+         if (book is not null)
+         {
+             return BadRequest("Kitap daha önce eklenmiştir!");
+         }
+         //Listemize yeni kitap ekliyoruz
+         BookList.Add(newBook);
+         return Ok();
+        }
+
+        // Put
+        [HttpPut]
+        public IActionResult UpdateBook([FromBody] Book updateBook){
+            //ilk olarak gelen kitapı listeden bulalım
+            var book = BookList.SingleOrDefault(x=>x.Id == updateBook.Id);
+            if (book is not null)
+            {
+                BookList.Add(book);
+                return Ok();
+            }
+            return BadRequest("Kitap bulunamadı? ");
         }
     }
 }
