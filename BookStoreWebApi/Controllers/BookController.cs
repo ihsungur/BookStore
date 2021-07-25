@@ -56,27 +56,44 @@ namespace BookStoreWebApi.Controllers
         public IActionResult AddBook([FromBody] Book newBook)
         {
             //Yeni eklenecek kitap listemizde var mı yok mu kontrol ediyoruz
-         var book = BookList.SingleOrDefault(x=>x.Title == newBook.Title);
-         if (book is not null)
-         {
-             return BadRequest("Kitap daha önce eklenmiştir!");
-         }
-         //Listemize yeni kitap ekliyoruz
-         BookList.Add(newBook);
-         return Ok();
+            var book = BookList.SingleOrDefault(x => x.Title == newBook.Title);
+            if (book is not null)
+            {
+                return BadRequest("Kitap daha önce eklenmiştir!");
+            }
+            //Listemize yeni kitap ekliyoruz
+            BookList.Add(newBook);
+            return Ok();
         }
 
         // Put
         [HttpPut]
-        public IActionResult UpdateBook([FromBody] Book updateBook){
+        public IActionResult UpdateBook(int id, [FromBody] Book updateBook)
+        {
             //ilk olarak gelen kitapı listeden bulalım
-            var book = BookList.SingleOrDefault(x=>x.Id == updateBook.Id);
-            if (book is not null)
-            {
-                BookList.Add(book);
-                return Ok();
-            }
-            return BadRequest("Kitap bulunamadı? ");
+            var book = BookList.SingleOrDefault(x => x.Id == id);
+            if (book is null)
+                return BadRequest("Kayıt bulunamadı!");
+
+            book.GenereId = updateBook.GenereId != default ? updateBook.GenereId : book.GenereId;
+            book.PageCount = updateBook.PageCount != default ? updateBook.PageCount : book.PageCount;
+            book.Title = updateBook.Title != default ? updateBook.Title : book.Title;
+            book.PublishDate = updateBook.PublishDate != default ? updateBook.PublishDate : book.PublishDate;
+            return Ok();
+        }
+
+        // Delete 
+        [HttpDelete("{id}")]
+        public IActionResult DeleteBook(int id)
+        {
+                Console.WriteLine("Id ->:", id);
+            var book = BookList.SingleOrDefault(x => x.Id == id);
+            Console.WriteLine("Book ->:", book is null);
+            if (book is null)
+                BadRequest("Kayıt Bulunamadı!");
+
+            BookList.Remove(book);
+            return Ok();
         }
     }
 }
